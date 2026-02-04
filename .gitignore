@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+
+# Build artifacts
+dist/
+.wrangler/
+
+# Environment and secrets
+.dev.vars
+.env
+.env.local
+
+# Registration state (generated, contains secrets)
+.klados-state.json
+.klados-state.prod.json
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Lock files (each example manages its own)
+package-lock.json
