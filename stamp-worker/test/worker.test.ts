@@ -157,16 +157,32 @@ describe('stamp-worker', () => {
       await sleep(2000);
       const entity = await getEntity(testEntity.id);
 
-      if (entity.properties.stamp_message === 'This worker was here!') {
+      // Check for array-based stamps
+      if (Array.isArray(entity.properties.stamps) && entity.properties.stamps.length > 0) {
         stamped = true;
+        const stamp = entity.properties.stamps[0];
         log('Entity stamped!');
-        log(`  stamped_at: ${entity.properties.stamped_at}`);
-        log(`  stamped_by: ${entity.properties.stamped_by}`);
-        log(`  stamp_message: ${entity.properties.stamp_message}`);
+        log(`  stamp_count: ${entity.properties.stamp_count}`);
+        log(`  stamps[0].stamped_at: ${stamp.stamped_at}`);
+        log(`  stamps[0].stamped_by: ${stamp.stamped_by}`);
+        log(`  stamps[0].stamp_number: ${stamp.stamp_number}`);
+        log(`  stamps[0].stamp_message: ${stamp.stamp_message}`);
       }
     }
 
     expect(stamped).toBe(true);
+
+    // Verify stamp structure
+    const finalEntity = await getEntity(testEntity.id);
+    expect(finalEntity.properties.stamps).toHaveLength(1);
+    expect(finalEntity.properties.stamp_count).toBe(1);
+    expect(finalEntity.properties.stamps[0]).toMatchObject({
+      stamp_number: 1,
+      stamped_by: expect.any(String),
+      stamped_at: expect.any(String),
+      stamp_message: expect.stringContaining('Stamp #1'),
+      job_id: result.job_id,
+    });
 
     // Verify log entry
     log('Verifying klados log...');
@@ -181,7 +197,7 @@ describe('stamp-worker', () => {
     assertLogHasMessages(kladosLog, [
       { textContains: 'starting' },
       { textContains: 'Fetched target' },
-      { textContains: 'stamped' },
+      { textContains: 'stamped successfully' },
       { textContains: 'completed' },
     ]);
     log('Log messages verified');

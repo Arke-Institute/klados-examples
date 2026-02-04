@@ -2,7 +2,10 @@
  * Stamp Worker - Job Processing Logic
  *
  * This worker stamps entities with metadata to prove it processed them.
- * Used for E2E testing of the klados worker template.
+ * Stamps accumulate in an array, allowing multiple workflow steps to
+ * add their own stamps without overwriting previous ones.
+ *
+ * Used for E2E testing of the klados worker template and workflow chaining.
  */
 
 import type { KladosJob } from '@arke-institute/rhiza';
@@ -35,12 +38,22 @@ export async function processJob(job: KladosJob): Promise<string[]> {
     throw new Error(`Failed to get entity tip: ${target.id}`);
   }
 
-  // Stamp the entity with metadata
-  const stampProperties = {
+  // Get existing stamps array or initialize empty
+  const existingStamps = Array.isArray(target.properties.stamps)
+    ? target.properties.stamps
+    : [];
+
+  // Create new stamp entry
+  const newStamp = {
     stamped_at: new Date().toISOString(),
     stamped_by: job.config.agentId,
-    stamp_message: 'This worker was here!',
+    stamp_number: existingStamps.length + 1,
+    stamp_message: `Stamp #${existingStamps.length + 1} - This worker was here!`,
+    job_id: job.request.job_id,
   };
+
+  // Accumulate stamps
+  const stamps = [...existingStamps, newStamp];
 
   const { error: updateError } = await job.client.api.PUT('/entities/{id}', {
     params: { path: { id: target.id } },
@@ -48,7 +61,8 @@ export async function processJob(job: KladosJob): Promise<string[]> {
       expect_tip: tipData.cid,
       properties: {
         ...target.properties,
-        ...stampProperties,
+        stamps,
+        stamp_count: stamps.length,
       },
     },
   });
@@ -57,7 +71,11 @@ export async function processJob(job: KladosJob): Promise<string[]> {
     throw new Error(`Failed to stamp entity: ${JSON.stringify(updateError)}`);
   }
 
-  job.log.info('Entity stamped successfully', stampProperties);
+  job.log.info('Entity stamped successfully', {
+    stamp_number: newStamp.stamp_number,
+    total_stamps: stamps.length,
+    stamped_by: newStamp.stamped_by,
+  });
   job.log.success('Job completed');
 
   // Return the stamped entity as output

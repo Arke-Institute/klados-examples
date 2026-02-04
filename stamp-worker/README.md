@@ -6,13 +6,21 @@ A simple klados worker example that stamps entities with metadata. This is a gre
 
 When invoked, this worker:
 1. Fetches the target entity
-2. Adds timestamp and stamp message to the entity's properties
+2. Appends a stamp entry to the entity's `stamps` array
 3. Returns the stamped entity
 
-The stamp adds these properties:
+**Stamps accumulate** - if the worker is invoked multiple times (e.g., in a workflow chain), each invocation adds a new stamp without overwriting previous ones.
+
+Each stamp entry contains:
 - `stamped_at` - ISO timestamp of when stamped
 - `stamped_by` - The klados agent ID
-- `stamp_message` - "This worker was here!"
+- `stamp_number` - Sequential number (1, 2, 3...)
+- `stamp_message` - "Stamp #N - This worker was here!"
+- `job_id` - The job ID that created this stamp
+
+The entity also gets:
+- `stamps` - Array of all stamp entries
+- `stamp_count` - Total number of stamps
 
 ## Quick Start
 
@@ -72,31 +80,35 @@ stamp-worker/
 
 ## The Processing Logic
 
-The core logic in `src/job.ts` is straightforward:
+The core logic in `src/job.ts` accumulates stamps in an array:
 
 ```typescript
 export async function processJob(job: KladosJob): Promise<string[]> {
-  // Fetch the target
   const target = await job.fetchTarget();
 
-  // Get current tip for CAS update
-  const { data: tipData } = await job.client.api.GET('/entities/{id}/tip', {
-    params: { path: { id: target.id } },
-  });
+  // Get existing stamps or initialize empty array
+  const existingStamps = Array.isArray(target.properties.stamps)
+    ? target.properties.stamps
+    : [];
 
-  // Add stamp properties
-  const stampProperties = {
+  // Create new stamp entry
+  const newStamp = {
     stamped_at: new Date().toISOString(),
     stamped_by: job.config.agentId,
-    stamp_message: 'This worker was here!',
+    stamp_number: existingStamps.length + 1,
+    stamp_message: `Stamp #${existingStamps.length + 1} - This worker was here!`,
+    job_id: job.request.job_id,
   };
 
-  // Update the entity
+  // Accumulate stamps
+  const stamps = [...existingStamps, newStamp];
+
+  // Update entity with accumulated stamps
   await job.client.api.PUT('/entities/{id}', {
     params: { path: { id: target.id } },
     body: {
       expect_tip: tipData.cid,
-      properties: { ...target.properties, ...stampProperties },
+      properties: { ...target.properties, stamps, stamp_count: stamps.length },
     },
   });
 
