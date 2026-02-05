@@ -138,7 +138,7 @@ describe('scatter workflow', () => {
     expect(result.job_id).toBeDefined();
     expect(result.job_collection).toBeDefined();
 
-    jobCollectionId = result.job_collection;
+    jobCollectionId = result.job_collection!;
     log(`Workflow started: ${result.job_id}`);
     log(`Job collection: ${jobCollectionId}`);
 
@@ -203,8 +203,9 @@ describe('scatter workflow', () => {
       log(`Copy ${entity.properties.copy_index}: ${entity.properties.label}`);
 
       // Each copy should have 1 stamp
-      expect(entity.properties.stamps).toHaveLength(1);
-      expect(entity.properties.stamps[0].stamped_by).toBe(STAMP_KLADOS);
+      const stamps = entity.properties.stamps as Array<{ stamped_by: string }>;
+      expect(stamps).toHaveLength(1);
+      expect(stamps[0].stamped_by).toBe(STAMP_KLADOS);
     }
 
     log('✅ Scatter workflow completed successfully!');

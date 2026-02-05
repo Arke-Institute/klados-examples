@@ -131,7 +131,7 @@ describe('stamp-chain workflow', () => {
     expect(result.job_collection).toBeDefined();
 
     // Store job collection ID for cleanup and polling
-    jobCollectionId = result.job_collection;
+    jobCollectionId = result.job_collection!;
     log(`Workflow started: ${result.job_id}`);
     log(`Job collection: ${jobCollectionId}`);
 
@@ -151,21 +151,26 @@ describe('stamp-chain workflow', () => {
 
     // Verify the entity has 2 stamps
     const finalEntity = await getEntity(testEntity.id);
-    log(`Final entity stamps: ${JSON.stringify(finalEntity.properties.stamps, null, 2)}`);
+    const stamps = finalEntity.properties.stamps as Array<{
+      stamp_number: number;
+      stamped_by: string;
+      stamp_message: string;
+    }>;
+    log(`Final entity stamps: ${JSON.stringify(stamps, null, 2)}`);
 
-    expect(finalEntity.properties.stamps).toHaveLength(2);
+    expect(stamps).toHaveLength(2);
     expect(finalEntity.properties.stamp_count).toBe(2);
 
     // Verify stamp order
-    expect(finalEntity.properties.stamps[0].stamp_number).toBe(1);
-    expect(finalEntity.properties.stamps[1].stamp_number).toBe(2);
+    expect(stamps[0].stamp_number).toBe(1);
+    expect(stamps[1].stamp_number).toBe(2);
 
     // Both stamps should be from the same klados (but different jobs)
-    expect(finalEntity.properties.stamps[0].stamped_by).toBe(STAMP_KLADOS);
-    expect(finalEntity.properties.stamps[1].stamped_by).toBe(STAMP_KLADOS);
+    expect(stamps[0].stamped_by).toBe(STAMP_KLADOS);
+    expect(stamps[1].stamped_by).toBe(STAMP_KLADOS);
 
     log('✅ Stamp chain workflow completed successfully!');
-    log(`   - First stamp: ${finalEntity.properties.stamps[0].stamp_message}`);
-    log(`   - Second stamp: ${finalEntity.properties.stamps[1].stamp_message}`);
+    log(`   - First stamp: ${stamps[0].stamp_message}`);
+    log(`   - Second stamp: ${stamps[1].stamp_message}`);
   });
 });

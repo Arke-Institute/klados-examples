@@ -18,7 +18,7 @@
     "hono": "^4.0.0"
   },
   "devDependencies": {
-    "@arke-institute/klados-testing": "^0.1.3",
+    "@arke-institute/klados-testing": "file:../../../../rhiza/packages/klados-testing",
     "@cloudflare/workers-types": "^4.20241230.0",
     "@types/node": "^22.0.0",
     "tsx": "^4.0.0",
