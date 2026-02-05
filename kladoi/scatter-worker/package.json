@@ -1,7 +1,7 @@
 {
-  "name": "stamp-worker",
+  "name": "scatter-worker",
   "version": "0.1.0",
-  "description": "Example klados worker that stamps entities with metadata",
+  "description": "Example klados worker that creates N copies for scatter testing",
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
@@ -13,12 +13,12 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@arke-institute/rhiza": "file:../../../rhiza",
+    "@arke-institute/rhiza": "file:../../../../rhiza",
     "@arke-institute/sdk": "^2.10.0",
     "hono": "^4.0.0"
   },
   "devDependencies": {
-    "@arke-institute/klados-testing": "^0.1.3",
+    "@arke-institute/klados-testing": "file:../../../../rhiza/packages/klados-testing",
     "@cloudflare/workers-types": "^4.20241230.0",
     "@types/node": "^22.0.0",
     "tsx": "^4.0.0",

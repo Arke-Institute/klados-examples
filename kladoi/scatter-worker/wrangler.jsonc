@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/cloudflare/workers-sdk/main/packages/wrangler/config-schema.json",
+  "name": "scatter-worker",
+  "main": "src/index.ts",
+  "compatibility_date": "2024-12-30",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // Enable observability for better debugging
+  "observability": {
+    "enabled": true
+  },
+
+  // Environment variables (non-secret)
+  "vars": {
+    "AGENT_ID": "IIKGQHV6HD1C7JR5MA56V541DN",
+    "AGENT_VERSION": "0.1.0"
+  }
+
+  // Secrets (set via `wrangler secret put`):
+  // - ARKE_AGENT_KEY: Your agent API key (ak_...)
+}

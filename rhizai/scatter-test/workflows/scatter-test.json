@@ -1,0 +1,16 @@
+{
+  "label": "Scatter Test",
+  "description": "Test scatter fan-out: scatter worker creates 3 copies, each gets stamped in parallel",
+  "version": "1.0",
+  "entry": "scatter",
+  "flow": {
+    "scatter": {
+      "klados": { "pi": "$SCATTER_KLADOS" },
+      "then": { "scatter": "stamp" }
+    },
+    "stamp": {
+      "klados": { "pi": "$STAMP_KLADOS" },
+      "then": { "done": true }
+    }
+  }
+}
