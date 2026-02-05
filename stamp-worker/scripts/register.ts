@@ -192,6 +192,12 @@ async function getOrCreateCollection(
     {
       label: 'Klados Agents',
       description: 'Collection for klados worker agents',
+      roles: {
+        public: ['*:view', '*:invoke'],
+        viewer: ['*:view'],
+        editor: ['*:view', '*:update', '*:create', '*:invoke'],
+        owner: ['*:view', '*:update', '*:create', '*:manage', '*:invoke', 'collection:update', 'collection:manage'],
+      },
     }
   );
   console.log(`  Created collection: ${id}`);
@@ -277,18 +283,19 @@ async function activateKlados(network: Network, kladosId: string): Promise<void>
   console.log(`  Klados activated!`);
 }
 
-async function createApiKey(
+async function createKladosApiKey(
   network: Network,
+  kladosId: string,
   label: string
 ): Promise<{ key: string; prefix: string }> {
-  console.log(`  Creating API key...`);
+  console.log(`  Creating klados API key...`);
   const result = await apiRequest<{ key: string; prefix: string }>(
     network,
     'POST',
-    '/users/me/keys',
+    `/kladoi/${kladosId}/keys`,
     { label }
   );
-  console.log(`  API key created: ${result.prefix}...`);
+  console.log(`  Klados API key created: ${result.prefix}...`);
   return result;
 }
 
@@ -464,9 +471,9 @@ async function main() {
       console.log(`\n🎯 Activating klados...`);
       await activateKlados(network, klados.id);
 
-      // Step 9: Create API key
-      console.log(`\n🔑 Creating API key...`);
-      const apiKey = await createApiKey(network, `${config.label} - ${network}`);
+      // Step 9: Create klados API key (authenticates as the klados, not the user)
+      console.log(`\n🔑 Creating klados API key...`);
+      const apiKey = await createKladosApiKey(network, klados.id, `${config.label} - ${network}`);
 
       // Step 10: Push API key to Cloudflare
       console.log(`\n📤 Pushing API key to Cloudflare...`);

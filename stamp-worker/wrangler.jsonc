@@ -12,7 +12,7 @@
 
   // Environment variables (non-secret)
   "vars": {
-    "AGENT_ID": "your-klados-agent-id",
+    "AGENT_ID": "IIKGNRDYWJVCM7M4MWDDN72BGT",
     "AGENT_VERSION": "0.1.0"
   }
 

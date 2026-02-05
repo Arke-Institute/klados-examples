@@ -1,0 +1,16 @@
+{
+  "label": "Stamp Chain",
+  "description": "Chain same stamp worker twice - stamps should accumulate on the target entity",
+  "version": "2.0",
+  "entry": "first_stamp",
+  "flow": {
+    "first_stamp": {
+      "klados": { "pi": "$STAMP_KLADOS" },
+      "then": { "pass": "second_stamp" }
+    },
+    "second_stamp": {
+      "klados": { "pi": "$STAMP_KLADOS" },
+      "then": { "done": true }
+    }
+  }
+}

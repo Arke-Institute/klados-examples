@@ -1,7 +1,7 @@
 {
   "label": "Stamp Worker",
   "description": "Example worker that stamps entities with metadata",
-  "endpoint": "https://stamp-worker.YOUR-SUBDOMAIN.workers.dev",
+  "endpoint": "https://stamp-worker.nick-chimicles-professional.workers.dev",
   "actions_required": ["entity:view", "entity:update"],
   "accepts": {
     "types": ["*"],

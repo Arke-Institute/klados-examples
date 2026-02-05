@@ -1,0 +1,20 @@
+{
+  "name": "stamp-chain-workflow",
+  "version": "0.1.0",
+  "description": "Example rhiza workflow that chains the same stamp klados twice",
+  "type": "module",
+  "scripts": {
+    "register": "tsx scripts/register.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@arke-institute/klados-testing": "file:../../../rhiza/packages/klados-testing",
+    "@arke-institute/rhiza": "^0.3.0",
+    "@types/node": "^22.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.7.2",
+    "vitest": "^2.0.0"
+  }
+}
