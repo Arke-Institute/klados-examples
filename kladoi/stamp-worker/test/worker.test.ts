@@ -52,8 +52,8 @@ const KLADOS_ID = process.env.KLADOS_ID;
 describe('stamp-worker', () => {
   // Test fixtures
   let targetCollection: { id: string };
-  let jobCollection: { id: string };
   let testEntity: { id: string };
+  let jobCollectionId: string; // Returned by API (not created by us)
 
   // Skip tests if environment not configured
   beforeAll(() => {
@@ -80,19 +80,14 @@ describe('stamp-worker', () => {
 
     log('Creating test fixtures...');
 
-    // Create target collection
+    // Create target collection - this is where your entities live and work happens
+    // Note: We do NOT create a job collection - the API creates one automatically
+    // and returns it in the invoke response. Job collections are ONLY for logs.
     targetCollection = await createCollection({
       label: `Stamp Target ${Date.now()}`,
       description: 'Target collection for stamp worker test',
     });
     log(`Created target collection: ${targetCollection.id}`);
-
-    // Create job collection
-    jobCollection = await createCollection({
-      label: `Stamp Jobs ${Date.now()}`,
-      description: 'Job collection for stamp worker test',
-    });
-    log(`Created job collection: ${jobCollection.id}`);
 
     // Create test entity
     testEntity = await createEntity({
@@ -116,7 +111,7 @@ describe('stamp-worker', () => {
     try {
       if (testEntity?.id) await deleteEntity(testEntity.id);
       if (targetCollection?.id) await deleteEntity(targetCollection.id);
-      if (jobCollection?.id) await deleteEntity(jobCollection.id);
+      // Note: We don't clean up jobCollectionId - it's owned by the API
       log('Cleanup complete');
     } catch (e) {
       log(`Cleanup error (non-fatal): ${e}`);
@@ -134,18 +129,22 @@ describe('stamp-worker', () => {
     }
 
     // Invoke the klados
+    // Note: We don't pass jobCollection - the API creates one and returns it
     log('Invoking stamp klados...');
     const result = await invokeKlados({
       kladosId: KLADOS_ID,
       targetEntity: testEntity.id,
       targetCollection: targetCollection.id,
-      jobCollection: jobCollection.id,
       confirm: true,
     });
 
     expect(result.status).toBe('started');
     expect(result.job_id).toBeDefined();
+    expect(result.job_collection).toBeDefined();
+
+    jobCollectionId = result.job_collection!;
     log(`Job started: ${result.job_id}`);
+    log(`Job collection: ${jobCollectionId}`);
 
     // Wait for stamp to be applied
     log('Waiting for entity to be stamped...');
@@ -186,7 +185,7 @@ describe('stamp-worker', () => {
 
     // Verify log entry
     log('Verifying klados log...');
-    const kladosLog = await waitForKladosLog(jobCollection.id, {
+    const kladosLog = await waitForKladosLog(jobCollectionId, {
       timeout: 30000,
       pollInterval: 2000,
     });
@@ -218,7 +217,6 @@ describe('stamp-worker', () => {
       kladosId: KLADOS_ID,
       targetEntity: testEntity.id,
       targetCollection: targetCollection.id,
-      jobCollection: jobCollection.id,
       confirm: false,
     });
 
