@@ -49,6 +49,7 @@ export async function processJob(job: KladosJob): Promise<string[]> {
           label: copyLabel,
           copy_index: i,
           copy_total: NUM_COPIES,
+          source_entity: target.id,
           created_by: job.config.agentId,
           created_at: new Date().toISOString(),
         },
