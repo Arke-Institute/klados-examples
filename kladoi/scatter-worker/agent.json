@@ -2,7 +2,7 @@
   "label": "Scatter Worker",
   "description": "Creates N copies of an entity for scatter testing",
   "endpoint": "https://scatter-worker.nick-chimicles-professional.workers.dev",
-  "actions_required": ["entity:view", "entity:create"],
+  "actions_required": ["entity:view", "entity:create", "entity:update"],
   "accepts": {
     "types": ["*"],
     "cardinality": "one"

@@ -9,9 +9,12 @@
     "test:watch": "vitest",
     "type-check": "tsc --noEmit"
   },
+  "dependencies": {
+    "@arke-institute/rhiza": "file:../../../../rhiza",
+    "@arke-institute/sdk": "^3.0.0"
+  },
   "devDependencies": {
     "@arke-institute/klados-testing": "file:../../../../rhiza/packages/klados-testing",
-    "@arke-institute/rhiza": "file:../../../../rhiza",
     "@types/node": "^22.0.0",
     "tsx": "^4.0.0",
     "typescript": "^5.7.2",

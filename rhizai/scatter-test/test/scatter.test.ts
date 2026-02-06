@@ -104,15 +104,19 @@ describe('scatter workflow', () => {
   afterAll(async () => {
     if (!ARKE_USER_KEY || !RHIZA_ID) return;
 
-    log('Cleaning up test fixtures...');
-    try {
-      if (testEntity?.id) await deleteEntity(testEntity.id);
-      if (targetCollection?.id) await deleteEntity(targetCollection.id);
-      if (jobCollectionId) await deleteEntity(jobCollectionId);
-      log('Cleanup complete');
-    } catch (e) {
-      log(`Cleanup error (non-fatal): ${e}`);
-    }
+    // DISABLED FOR DEBUGGING - uncomment to re-enable cleanup
+    log('Cleanup DISABLED for inspection');
+    log(`  Target collection: ${targetCollection?.id}`);
+    log(`  Test entity: ${testEntity?.id}`);
+    log(`  Job collection: ${jobCollectionId}`);
+    // try {
+    //   if (testEntity?.id) await deleteEntity(testEntity.id);
+    //   if (targetCollection?.id) await deleteEntity(targetCollection.id);
+    //   if (jobCollectionId) await deleteEntity(jobCollectionId);
+    //   log('Cleanup complete');
+    // } catch (e) {
+    //   log(`Cleanup error (non-fatal): ${e}`);
+    // }
   });
 
   // ==========================================================================
@@ -178,32 +182,26 @@ describe('scatter workflow', () => {
     log(`Scatter logs: ${scatterLogs.length}`);
     log(`Stamp logs: ${stampLogs.length}`);
 
-    // Verify a batch entity was created
-    const batchResponse = await apiRequest<{ entities: Array<{ pi: string }> }>(
-      'GET',
-      `/collections/${jobCollectionId}/entities?type=batch`
-    );
+    // Fetch the original entity and verify copies via relationships
+    const originalEntity = await getEntity(testEntity.id);
+    const copyRelationships = originalEntity.relationships?.filter(
+      (r: { predicate: string }) => r.predicate === 'has_copy'
+    ) || [];
 
-    log(`Batch entities found: ${batchResponse.entities?.length || 0}`);
-    expect(batchResponse.entities?.length).toBeGreaterThanOrEqual(1);
+    log(`Copy relationships found: ${copyRelationships.length}`);
+    expect(copyRelationships.length).toBe(NUM_COPIES);
 
-    // Fetch the copies (they're in the job collection)
-    const copiesResponse = await apiRequest<{ entities: Array<{ pi: string }> }>(
-      'GET',
-      `/collections/${jobCollectionId}/entities?type=test_entity`
-    );
+    // Verify each copy exists and has a stamp
+    for (const rel of copyRelationships) {
+      const copy = await getEntity(rel.peer);
+      log(`Copy ${copy.properties.copy_index}: ${copy.properties.label}`);
 
-    const copies = copiesResponse.entities || [];
-    log(`Copies found: ${copies.length}`);
-    expect(copies.length).toBe(NUM_COPIES);
-
-    // Verify each copy has a stamp
-    for (const copy of copies) {
-      const entity = await getEntity(copy.pi);
-      log(`Copy ${entity.properties.copy_index}: ${entity.properties.label}`);
+      // Verify copy is properly formatted
+      expect(copy.type).toBe('test_entity');
+      expect(copy.properties.label).toContain('Copy');
 
       // Each copy should have 1 stamp
-      const stamps = entity.properties.stamps as Array<{ stamped_by: string }>;
+      const stamps = copy.properties.stamps as Array<{ stamped_by: string }>;
       expect(stamps).toHaveLength(1);
       expect(stamps[0].stamped_by).toBe(STAMP_KLADOS);
     }

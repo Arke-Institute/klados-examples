@@ -33,13 +33,13 @@ export async function processJob(job: KladosJob): Promise<string[]> {
     label: target.properties.label,
   });
 
-  // Create N copies of the entity
+  // Create N copies of the entity with proper relationships
   const copies: string[] = [];
 
   for (let i = 0; i < NUM_COPIES; i++) {
     const copyLabel = `${target.properties.label || 'Entity'} - Copy ${i + 1}`;
 
-    // Create copy in the target collection (NOT job collection - that's only for logs)
+    // Create copy in the target collection with relationship back to original
     const { data, error } = await job.client.api.POST('/entities', {
       body: {
         type: target.type,
@@ -49,10 +49,18 @@ export async function processJob(job: KladosJob): Promise<string[]> {
           label: copyLabel,
           copy_index: i,
           copy_total: NUM_COPIES,
-          source_entity: target.id,
           created_by: job.config.agentId,
           created_at: new Date().toISOString(),
         },
+        // Relationship from copy to original
+        relationships: [
+          {
+            predicate: 'copy_of',
+            peer: target.id,
+            peer_type: target.type,
+            peer_label: target.properties.label as string,
+          },
+        ],
       },
     });
 
@@ -65,6 +73,34 @@ export async function processJob(job: KladosJob): Promise<string[]> {
       copyId: data.id,
       label: copyLabel,
     });
+  }
+
+  // Update original entity to point to all copies
+  // First get the current tip for CAS
+  const { data: tipData, error: tipError } = await job.client.api.GET('/entities/{id}/tip', {
+    params: { path: { id: target.id } },
+  });
+
+  if (tipError || !tipData) {
+    job.log.info('Failed to get tip for original entity', { error: tipError });
+  } else {
+    const { error: updateError } = await job.client.api.PUT('/entities/{id}', {
+      params: { path: { id: target.id } },
+      body: {
+        expect_tip: tipData.cid,
+        relationships_add: copies.map((copyId, i) => ({
+          predicate: 'has_copy',
+          peer: copyId,
+          peer_type: target.type,
+          peer_label: `${target.properties.label || 'Entity'} - Copy ${i + 1}`,
+        })),
+      },
+    });
+
+    if (updateError) {
+      job.log.info('Failed to add has_copy relationships to original', { error: updateError });
+      // Don't fail the job - copies were created successfully
+    }
   }
 
   job.log.success('Scatter complete', {
