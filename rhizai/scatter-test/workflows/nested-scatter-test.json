@@ -1,0 +1,20 @@
+{
+  "label": "Nested Scatter Test",
+  "description": "Test nested scatter: level 1 creates 3 copies, each scatters to 3 more, each gets stamped",
+  "version": "1.0",
+  "entry": "scatter1",
+  "flow": {
+    "scatter1": {
+      "klados": { "pi": "$SCATTER_KLADOS" },
+      "then": { "scatter": "scatter2" }
+    },
+    "scatter2": {
+      "klados": { "pi": "$SCATTER_KLADOS" },
+      "then": { "scatter": "stamp" }
+    },
+    "stamp": {
+      "klados": { "pi": "$STAMP_KLADOS" },
+      "then": { "done": true }
+    }
+  }
+}
