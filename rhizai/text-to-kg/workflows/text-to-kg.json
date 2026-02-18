@@ -1,0 +1,16 @@
+{
+  "label": "Text to Knowledge Graph",
+  "description": "Chunks text and extracts knowledge from each chunk in parallel",
+  "version": "1.0",
+  "entry": "chunk",
+  "flow": {
+    "chunk": {
+      "klados": { "id": "$TEXT_CHUNKER_KLADOS" },
+      "then": { "scatter": "extract" }
+    },
+    "extract": {
+      "klados": { "id": "$KG_EXTRACTOR_KLADOS" },
+      "then": { "done": true }
+    }
+  }
+}
