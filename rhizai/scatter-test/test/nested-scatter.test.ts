@@ -100,7 +100,7 @@ describe('nested scatter workflow', () => {
         label: 'Nested Scatter Source',
         copy_count: 3,  // Each scatter creates 3 copies
       },
-      collectionId: targetCollection.id,
+      collection: targetCollection.id,
     });
     log(`Created test entity: ${testEntity.id} with copy_count: 3`);
   });

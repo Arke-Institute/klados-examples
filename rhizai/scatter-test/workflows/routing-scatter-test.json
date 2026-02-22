@@ -1,0 +1,21 @@
+{
+  "label": "Routing Scatter Test",
+  "description": "Test per-item routing: canonicals get stamped, mentions route to done",
+  "version": "1.0",
+  "entry": "scatter",
+  "flow": {
+    "scatter": {
+      "klados": { "id": "$SCATTER_KLADOS" },
+      "then": {
+        "scatter": "stamp",
+        "route": [
+          { "where": { "property": "entity_class", "equals": "mention" }, "target": "done" }
+        ]
+      }
+    },
+    "stamp": {
+      "klados": { "id": "$STAMP_KLADOS" },
+      "then": { "done": true }
+    }
+  }
+}

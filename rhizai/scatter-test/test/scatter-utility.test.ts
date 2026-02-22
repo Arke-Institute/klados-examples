@@ -98,7 +98,7 @@ describe('scatter-utility delegation', () => {
         copy_count: LARGE_COPY_COUNT,  // This triggers the large scatter
         created_at: new Date().toISOString(),
       },
-      collectionId: targetCollection.id,
+      collection: targetCollection.id,
     });
     log(`Created test entity: ${testEntity.id} with copy_count: ${LARGE_COPY_COUNT}`);
   });

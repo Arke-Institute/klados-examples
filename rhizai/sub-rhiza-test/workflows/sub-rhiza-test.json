@@ -1,0 +1,16 @@
+{
+  "label": "Sub-Rhiza Test",
+  "description": "Tests scatter to sub-rhiza invocation - scatter creates copies, each invokes stamp-chain sub-rhiza",
+  "version": "1.0",
+  "entry": "scatter",
+  "flow": {
+    "scatter": {
+      "klados": { "id": "$SCATTER_KLADOS" },
+      "then": { "scatter": "process" }
+    },
+    "process": {
+      "klados": { "id": "$STAMP_CHAIN_RHIZA", "type": "rhiza" },
+      "then": { "done": true }
+    }
+  }
+}

@@ -5,11 +5,11 @@
   "entry": "first_stamp",
   "flow": {
     "first_stamp": {
-      "klados": { "pi": "$STAMP_KLADOS" },
+      "klados": { "id": "$STAMP_KLADOS" },
       "then": { "pass": "second_stamp" }
     },
     "second_stamp": {
-      "klados": { "pi": "$STAMP_KLADOS" },
+      "klados": { "id": "$STAMP_KLADOS" },
       "then": { "done": true }
     }
   }

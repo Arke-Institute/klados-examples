@@ -5,15 +5,15 @@
   "entry": "scatter1",
   "flow": {
     "scatter1": {
-      "klados": { "pi": "$SCATTER_KLADOS" },
+      "klados": { "id": "$SCATTER_KLADOS" },
       "then": { "scatter": "scatter2" }
     },
     "scatter2": {
-      "klados": { "pi": "$SCATTER_KLADOS" },
+      "klados": { "id": "$SCATTER_KLADOS" },
       "then": { "scatter": "stamp" }
     },
     "stamp": {
-      "klados": { "pi": "$STAMP_KLADOS" },
+      "klados": { "id": "$STAMP_KLADOS" },
       "then": { "done": true }
     }
   }

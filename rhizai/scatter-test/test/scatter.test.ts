@@ -96,7 +96,7 @@ describe('scatter workflow', () => {
         content: 'This entity will be copied 3 times, each copy gets stamped',
         created_at: new Date().toISOString(),
       },
-      collectionId: targetCollection.id,
+      collection: targetCollection.id,
     });
     log(`Created test entity: ${testEntity.id}`);
   });

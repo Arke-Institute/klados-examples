@@ -79,7 +79,7 @@ describe('scatter worker (direct)', () => {
         content: 'This entity will be copied 3 times',
         created_at: new Date().toISOString(),
       },
-      collectionId: targetCollection.id,
+      collection: targetCollection.id,
     });
     log(`Created test entity: ${testEntity.id}`);
   });

@@ -43,7 +43,7 @@ async function main() {
       label: 'Test Source',
       copy_count: 3,
     },
-    collectionId: collection.id,
+    collection: collection.id,
   });
   console.log(`  Entity: ${entity.id}`);
 
