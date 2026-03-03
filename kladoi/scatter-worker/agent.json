@@ -5,7 +5,7 @@
   "actions_required": ["entity:view", "entity:create", "entity:update"],
   "accepts": {
     "types": ["*"],
-    "cardinality": "one"
+    "cardinality": "many"
   },
   "produces": {
     "types": ["*"],

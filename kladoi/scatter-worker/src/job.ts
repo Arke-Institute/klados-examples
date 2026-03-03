@@ -39,7 +39,13 @@ const BATCH_SIZE = 20;
  * @returns Array of outputs (entity IDs or OutputItems with routing properties)
  */
 export async function processJob(job: KladosJob): Promise<Output[]> {
-  // Fetch the target entity first to get copy_count
+  // Check if we received multiple target entities (cardinality: many)
+  // This is the preferred way to pass entities - via target_entities
+  if (job.request.target_entities?.length) {
+    return await processMultipleTargets(job);
+  }
+
+  // Fallback: single target_entity (backward compat with cardinality: one)
   const target = await job.fetchTarget();
 
   // Check if we should use existing copies instead of creating new ones
@@ -48,7 +54,7 @@ export async function processJob(job: KladosJob): Promise<Output[]> {
   // Read mix_entity_class flag for per-item routing tests
   const mixEntityClass = target.properties.mix_entity_class === true;
 
-  job.log.info('Scatter worker starting', {
+  job.log.info('Scatter worker starting (single target mode)', {
     target: job.request.target_entity,
     useExistingCopies,
     mixEntityClass,
@@ -178,6 +184,44 @@ export async function processJob(job: KladosJob): Promise<Output[]> {
       };
     }
     return copy.id;
+  });
+
+  return outputs;
+}
+
+/**
+ * Process multiple target entities received via target_entities
+ *
+ * When the scatter worker receives multiple entities through the proper
+ * target_entities field (cardinality: many), it fetches each one and
+ * passes them through as outputs - scattering them to the next step.
+ *
+ * Supports mix_entity_class via individual entity properties.
+ */
+async function processMultipleTargets(job: KladosJob): Promise<Output[]> {
+  const targets = await job.fetchTargets();
+
+  job.log.info('Scatter worker starting (multiple targets mode)', {
+    targetCount: targets.length,
+    targetIds: targets.map(t => t.id),
+    isWorkflow: job.isWorkflow,
+  });
+
+  // Build outputs from the target entities
+  const outputs: Output[] = targets.map(target => {
+    const entityClass = target.properties.entity_class as string | undefined;
+    if (entityClass) {
+      return {
+        entity_id: target.id,
+        entity_class: entityClass,
+      };
+    }
+    return target.id;
+  });
+
+  job.log.success('Scatter complete (multiple targets)', {
+    outputCount: outputs.length,
+    outputIds: targets.map(t => t.id),
   });
 
   return outputs;
