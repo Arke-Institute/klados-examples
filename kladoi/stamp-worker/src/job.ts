@@ -76,8 +76,29 @@ export async function processJob(job: KladosJob): Promise<string[]> {
     total_stamps: stamps.length,
     stamped_by: newStamp.stamped_by,
   });
+
+  // Create a receipt entity to prove we processed this
+  const { data: receipt, error: receiptError } = await job.client.api.POST('/entities', {
+    body: {
+      type: 'stamp_receipt',
+      collection: job.request.target_collection,
+      properties: {
+        stamped_entity: target.id,
+        stamp_number: newStamp.stamp_number,
+        stamped_at: newStamp.stamped_at,
+        stamped_by: newStamp.stamped_by,
+        job_id: job.request.job_id,
+      },
+    },
+  });
+
+  if (receiptError || !receipt) {
+    throw new Error(`Failed to create receipt: ${JSON.stringify(receiptError)}`);
+  }
+
+  job.log.info('Created stamp receipt', { receipt_id: receipt.id });
   job.log.success('Job completed');
 
-  // Return the stamped entity as output
-  return [target.id];
+  // Return both the updated entity and the new receipt as outputs
+  return [target.id, receipt.id];
 }

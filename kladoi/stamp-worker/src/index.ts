@@ -66,6 +66,7 @@ app.post('/process', async (c) => {
     agentId: c.env.AGENT_ID,
     agentVersion: c.env.AGENT_VERSION,
     authToken: c.env.ARKE_AGENT_KEY,
+    linkEntitiesToLogs: true, // Link processed entities to their logs
   });
 
   // Process in background - KladosJob handles:

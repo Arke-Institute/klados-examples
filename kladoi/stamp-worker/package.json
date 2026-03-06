@@ -13,7 +13,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@arke-institute/rhiza": "file:../../../../rhiza",
+    "@arke-institute/rhiza": "^0.7.11",
     "@arke-institute/sdk": "^3.0.0",
     "hono": "^4.0.0"
   },

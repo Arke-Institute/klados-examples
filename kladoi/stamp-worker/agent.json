@@ -2,7 +2,7 @@
   "label": "Stamp Worker",
   "description": "Example worker that stamps entities with metadata",
   "endpoint": "https://stamp-worker.nick-chimicles-professional.workers.dev",
-  "actions_required": ["entity:view", "entity:update"],
+  "actions_required": ["entity:view", "entity:create", "entity:update"],
   "accepts": {
     "types": ["*"],
     "cardinality": "one"
